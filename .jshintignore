@@ -1,5 +1,3 @@
-node_modules
-src/main/javascript/doc.js
-dist
-lib
-.log
+app/scripts/analytics/google.js
+app/scripts/plugins/*
+app/scripts/ace/themes/theme-atom_dark.js

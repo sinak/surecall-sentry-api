@@ -1,4 +1,4 @@
 .git
 node_modules
-bower_components
-*.swp
+app/bower_components
+.*.swp

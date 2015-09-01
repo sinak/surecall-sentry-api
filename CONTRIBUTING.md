@@ -1,8 +1,7 @@
-## Pull Requests
-Plase make your pull requests are made to the [**`develop_2.0`**](https://github.com/swagger-api/swagger-ui/tree/develop_2.0) branch at this time.
+# Contributing to Swagger Editor
 
-## Issues
-SwaggerUI uses [SwaggerJS](https://github.com/swagger-api/swagger-js) library for many internal operations. If you see errors in
-[`swagger-client.js`](lib/swagger-client.js) file, you should probably open the issue in [SwaggerJS](https://github.com/swagger-api/swagger-js) repository.
+### Issues
+File issues in GitHub's to report bugs or issue a pull request.
 
-Please open issues related to Swagger specifications in [Swagger Specs](https://github.com/swagger-api/swagger-spec) repository.
+### Licensing
+All contributions must grant copyright permission to this project, the source of which is declared to be under an Apache 2 license (see [LICENSE](./LICENSE)).

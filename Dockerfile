@@ -1,22 +1,30 @@
 ###
-# swagger-ui-builder - https://github.com/wordnik/swagger-ui/
-# Container for building the swagger-ui static site
+# swagger-editor - https://github.com/swagger-api/swagger-editor/
 #
-# Build: docker build -t swagger-ui-builder .
-# Run:   docker run -v $PWD/dist:/build/dist swagger-ui-builder
-#
+# Run the swagger-editor service on port 8080
 ###
 
 FROM    ubuntu:14.04
-MAINTAINER dnephin@gmail.com
+MAINTAINER Marcello_deSales@intuit.com
 
 ENV     DEBIAN_FRONTEND noninteractive
 
-RUN     apt-get update && apt-get install -y git npm nodejs openjdk-7-jre
+RUN     apt-get update && apt-get install -y git npm nodejs && rm -rf /var/lib/apt/lists/*
 RUN     ln -s /usr/bin/nodejs /usr/local/bin/node
 
-WORKDIR /build
-ADD     package.json    /build/package.json
+WORKDIR /runtime
+ADD     package.json    /runtime/package.json
 RUN     npm install
-ADD     .   /build
-CMD     ./node_modules/gulp/bin/gulp.js serve
+RUN     npm install -g bower grunt-cli
+
+
+ADD     bower.json      /runtime/bower.json
+ADD     .bowerrc        /runtime/.bowerrc
+RUN     bower --allow-root --force-latest install
+
+ADD     .   /runtime
+RUN 	grunt build
+
+# The default port of the application
+EXPOSE  8080
+CMD     grunt connect:dist
