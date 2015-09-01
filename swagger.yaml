@@ -1,0 +1,228 @@
+# this is an example of the Uber API
+# as a demonstration of an API spec in YAML
+swagger: '2.0'
+info:
+  title: Sentry API
+  description: An API for accessing data about the status of Sentry monitoring devices.
+  version: "0.0.1"
+# the domain of the service
+host: sentry.surecall.com
+# array of all schemes that your API supports
+schemes:
+  - https
+# will be prefixed to all paths
+basePath: /v1
+produces:
+  - application/json
+paths:
+  /devices:
+    get:
+      summary: Active Sentry devices
+      description: |
+        The endpoint returns information about the *Sentry* monitoring devices available under the user's account. The response includes their ID codes, names and locations.
+        
+        The optional id query parameter can be used to view information about a specific device.
+      parameters:
+        - name: id
+          in: query
+          description: Fetch information about a specific device using its Sentry device ID.
+          required: false
+          type: string
+      responses:
+        200:
+          description: An array of sentry devices
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Devices'
+        "404":
+          description: Device not found
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /status/{deviceID}:
+    get:
+      summary: Sentry device status
+      description: Return the current status of a SureCall booster, including information about all bands.
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: deviceID
+          description: ID of Sentry device for which status should be fetched.
+          required: true
+          type: string
+      responses:
+        "404":
+          description: Device not found
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/Status"
+        "400":
+          description: Invalid ID supplied
+  /settings/{deviceID}:
+    get:
+      summary: Fetch current Sentry settings
+      description: Return the current settings of a SureCall booster.
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: deviceID
+          description: ID of Sentry device for which settings should be fetched.
+          required: true
+          type: string
+      responses:
+        "404":
+          description: Device not found
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/Settings"
+        "400":
+          description: Invalid ID supplied
+    put:
+      summary: Update SureCall booster settings
+      description: Update a specific SureCall booster system with new settings.
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: deviceID
+          description: ID of Sentry device for which settings are being set.
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: New settings object
+          required: true
+          schema:
+            $ref: "#/definitions/Settings"
+      responses:
+        "404":
+          description: Device not found
+        "400":
+          description: Invalid settings
+definitions:
+  Device:
+    properties:
+      device_id:
+        type: string
+        description: Unique identifier representing a specific Sentry device registered under the user's account.
+      type:
+        type: string
+        description: SureCall model name of the device being monitored, e.g. 'Force5'.
+      version:
+        type: string
+        description: Software version of the Sentry device.
+      name:
+        type: string
+        description: Optional name given to the booster during the device setup.
+      address:
+        type: string
+        description: Optional address specified for the booster during device setup.
+      last_updated_at:
+        type: string
+        format: date-time
+        description: Last time the device reported its current status.
+  Devices:
+    properties:
+      count:
+        type: integer
+        format: int32
+        description: Total number of devices registered to account.
+      devices:
+        type: array
+        items:
+          $ref: '#/definitions/Device'
+  Status:
+    properties:
+      device:
+        type: object
+        description: '#/definitions/Device'
+      bands:
+        type: array
+        items:
+          $ref: '#/definitions/BandStatus'
+  BandStatus:
+    properties:
+      band_id:
+        type: string
+        description: Frequency band identifier, e.g. "LTE_A_U" for LTE-A uplink band.
+      attenuation:
+        type: integer
+        format: int32
+        description: Current user-set attenuation level setting in dB.
+      manual_attenuation:
+        type: integer
+        format: int32
+        description: Current manual attenuation level set using the device's dip switches in dB.
+      agc_attenuation:
+        type: integer
+        format: int32
+        description: Current automatic gain control attenuation level in dB.
+      agc_status:
+        type: boolean
+        format: int32
+        description: Indicated whether the automatic gain control is currently actively adjusting.
+      gain:
+        type: integer
+        format: int32
+        description: Indicates the current gain on the band in dB.
+      output_power:
+        type: integer
+        format: int32
+        description: Indicates the current output power on the band (uplink only) in dBm.
+      outside_signal:
+        type: integer
+        format: int32
+        description: Indicates the current outside signal strength on the band (downlink only).
+      status:
+        type: string
+        description: Indicates whether the band is currently On, Active, Sleep, or Off.
+      over_power:
+        type: boolean
+        description: Indicates whether the band is currently over powered.
+      oscillation:
+        type: boolean
+        description: Indicates whether the band is currently oscillating.
+      over_attenuation:
+        type: boolean
+        description: Indicates whether the band is currently over-attenuated.
+  Settings:
+    required:
+      - device_id
+    properties:
+      device_id:
+        type: string
+        description: Unique identifier representing a specific Sentry device registered under the user's account.
+      bands:
+        type: array
+        items:
+          $ref: '#/definitions/BandSettings'
+  BandSettings:
+    required:
+      - band_id
+    properties:
+      band_id:
+        type: string
+        description: Frequency band identifier, e.g. "LTE_A_U" for LTE-A uplink band.
+      attenuation:
+        type: integer
+        format: int32
+        description: Current user-set attenuation level setting in dB.
+      power:
+        type: integer
+        format: beeloean
+        description: Enables/disables amplication on the band.
+  Error:
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      fields:
+        type: string
